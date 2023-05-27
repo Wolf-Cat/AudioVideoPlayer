@@ -18,6 +18,7 @@ target_link_libraries(AudioVideoPlayer
 )
 
 target_link_libraries(AudioVideoPlayer
+        mingw32
         SDL2main
         SDL2)
 
