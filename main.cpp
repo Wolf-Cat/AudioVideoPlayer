@@ -2,13 +2,13 @@
 extern "C" {
     #include <libavutil/log.h>
     #include <libavformat/avformat.h>
-    //#include <SDL.h>
+    #include <SDL2/SDL.h>
 }
 
 using namespace std;
 
-//SDL_Window *g_pWin = NULL;
-//SDL_Renderer *g_pRenderer = NULL;
+SDL_Window *g_pWin = NULL;
+SDL_Renderer *g_pRenderer = NULL;
 
 int main(int argc, char *agrv[])
 {
@@ -20,7 +20,7 @@ int main(int argc, char *agrv[])
     uint32_t version = avformat_version();
     cout << "version:" << version << endl;
 
-    //if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
+    if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
     {
         std::cout << "SDL init success" << std::endl;
     }
