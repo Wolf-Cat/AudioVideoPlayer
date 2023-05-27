@@ -23,8 +23,10 @@ int main(int argc, char *agrv[])
     uint32_t version = avformat_version();
     cout << "version:" << version << endl;
 
-    SDL_Texture *pTextTure = NULL;
     char fileAvPath[10] = "./mp4";
+    int nRet = -1;
+    SDL_Texture *pTextTure = NULL;
+    AVFormatContext *pFmtContex = NULL;
 
     if(SDL_Init(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0))
     {
@@ -47,6 +49,20 @@ int main(int argc, char *agrv[])
     if(g_pRenderer == NULL)
     {
         fprintf(stderr, "Create Renderer failed, %s\n", SDL_GetError());
+        goto __END;
+    }
+
+    //打开多媒体文件，并获得流信息
+    nRet = avformat_open_input(&pFmtContex, fileAvPath, NULL, NULL);
+    if(nRet < 0)
+    {
+        av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(nRet));
+        goto __END;
+    }
+
+    nRet = avformat_find_stream_info(pFmtContex, NULL);
+    if(nRet < 0){
+        av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(nRet));
         goto __END;
     }
 
