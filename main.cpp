@@ -5,6 +5,7 @@ extern "C" {
     #include <libavutil/error.h>
     #include <SDL2/SDL.h>
 }
+#include "AVGlobal.h"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ namespace {
 static SDL_Window *g_pWindow = NULL;
 static SDL_Renderer *g_pRenderer = NULL;
 
-void PlayerInit(const char* fileName);
+AVGlobal* PlayerInit(const char* pFileName);
 
 
 int main(int argc, char *agrv[])
@@ -30,6 +31,7 @@ int main(int argc, char *agrv[])
     char input_file_path[] = "./testVedio.mp4";
     int nRet = -1;
     SDL_Texture *pTextTure = NULL;
+    AVGlobal *pAVGlobal = nullptr;
 
     AVFormatContext *pFmtContex = NULL;
     AVStream *pInstream = NULL;
@@ -59,30 +61,29 @@ int main(int argc, char *agrv[])
         goto __END;
     }
 
-    //1. 打开多媒体文件，并获得流信息
-    nRet = avformat_open_input(&pFmtContex, input_file_path, NULL, NULL);
-    if(nRet < 0)
+    pAVGlobal = PlayerInit(input_file_path);
+    if(nullptr == pAVGlobal)
     {
-        av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(nRet));
-        goto __END;
+        av_log(NULL, AV_LOG_FATAL, "Init avplayer failed!\n");
     }
-
-    nRet = avformat_find_stream_info(pFmtContex, NULL);
-    if(nRet < 0){
-        av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(nRet));
-        goto __END;
-    }
-
-    // 2. 找到音频流和视频流
-    // 3. 根据流中的codec_id，获得解码器
-
 
     __END:
 
     return 0;
 }
 
-void PlayerInit(const char* fileName)
+AVGlobal* PlayerInit(const char* pFileName)
 {
+    if(nullptr == pFileName)
+    {
+        return nullptr;
+    }
 
+    AVGlobal *pAvGlobal = new AVGlobal;
+    if(pAvGlobal == nullptr)
+    {
+        return nullptr;
+    }
+
+    return pAvGlobal;
 }
