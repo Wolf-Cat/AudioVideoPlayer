@@ -12,6 +12,7 @@ link_directories(D:/SDL-mingw-VC/SDL2-2.26.5-mingw/x86_64-w64-mingw32/lib)
 
 add_executable(AudioVideoPlayer
         AVGlobal.cpp
+        AVPacketQueue.cpp
         main.cpp)
 
 #添加动态库
