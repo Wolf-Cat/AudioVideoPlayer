@@ -2,6 +2,7 @@
 extern "C" {
     #include <libavutil/log.h>
     #include <libavformat/avformat.h>
+    #include <libavutil/error.h>
     #include <SDL2/SDL.h>
 }
 
@@ -15,6 +16,9 @@ namespace {
 static SDL_Window *g_pWindow = NULL;
 static SDL_Renderer *g_pRenderer = NULL;
 
+void PlayerInit(const char* fileName);
+
+
 int main(int argc, char *agrv[])
 {
     av_log_set_level(AV_LOG_DEBUG);
@@ -23,12 +27,15 @@ int main(int argc, char *agrv[])
     uint32_t version = avformat_version();
     cout << "version:" << version << endl;
 
-    char fileAvPath[10] = "./mp4";
+    char input_file_path[] = "./testVedio.mp4";
     int nRet = -1;
     SDL_Texture *pTextTure = NULL;
-    AVFormatContext *pFmtContex = NULL;
 
-    if(SDL_Init(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == 0))
+    AVFormatContext *pFmtContex = NULL;
+    AVStream *pInstream = NULL;
+    int nIdx = 0;
+
+    if(SDL_Init(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) == 0))
     {
         std::cout << "SDL init success" << std::endl;
     }
@@ -52,8 +59,8 @@ int main(int argc, char *agrv[])
         goto __END;
     }
 
-    //打开多媒体文件，并获得流信息
-    nRet = avformat_open_input(&pFmtContex, fileAvPath, NULL, NULL);
+    //1. 打开多媒体文件，并获得流信息
+    nRet = avformat_open_input(&pFmtContex, input_file_path, NULL, NULL);
     if(nRet < 0)
     {
         av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(nRet));
@@ -66,7 +73,16 @@ int main(int argc, char *agrv[])
         goto __END;
     }
 
+    // 2. 找到音频流和视频流
+    // 3. 根据流中的codec_id，获得解码器
+
+
     __END:
 
     return 0;
+}
+
+void PlayerInit(const char* fileName)
+{
+
 }
