@@ -67,7 +67,7 @@ int main(int argc, char *agrv[])
         av_log(NULL, AV_LOG_FATAL, "Init avplayer failed!\n");
     }
 
-    __END:
+__END:
 
     return 0;
 }
@@ -82,8 +82,16 @@ AVGlobal* PlayerInit(const char* pFileName)
     AVGlobal *pAvGlobal = new AVGlobal;
     if(pAvGlobal == nullptr)
     {
-        return nullptr;
+        goto __Error;
     }
+
+    if(pAvGlobal->m_queAudio.InitPacketQueue() < 0 ||
+        pAvGlobal->m_queVedio.InitPacketQueue() < 0)
+    {
+        goto __Error;
+    }
+
+__Error:
 
     return pAvGlobal;
 }
