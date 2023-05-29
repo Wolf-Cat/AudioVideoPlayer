@@ -1,6 +1,10 @@
 #ifndef AUDIOVIDEOPLAYER_AVPACKETQUEUE_H
 #define AUDIOVIDEOPLAYER_AVPACKETQUEUE_H
 
+/*****
+    用于存放解码前的音视频包
+*****/
+
 extern "C" {
     #include <libavutil/fifo.h>
     #include <libavcodec/packet.h>
@@ -16,7 +20,7 @@ class AVPacketQueue {
 public:
     int InitPacketQueue();
     int PushPacketQueue(AVPacket *pKt);
-    int GetPacketQueue(AVPacket *pKt, bool bBlock);
+    int GetPacketQueueElement(AVPacket *pKtOut, bool bBlock);
 
 private:
     int PushPacketQueueInner(AVPacket *pKt);

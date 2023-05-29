@@ -68,7 +68,38 @@ int AVPacketQueue::PushPacketQueueInner(AVPacket *pKt)
     return 0;
 }
 
-int AVPacketQueue::GetPacketQueue(AVPacket *pKt, bool bBlock)
+int AVPacketQueue::GetPacketQueueElement(AVPacket *pKtOut, bool bBlock)
 {
+    MyAVPacketList pktListTmp;
+    int nRet = -1;
+    SDL_LockMutex(m_pMutex);
 
+    for (;;)
+    {
+        if(av_fifo_read(m_pPacketList, &pktListTmp, 1) >= 0)
+        {
+            m_nCountPackets--;
+            m_nQueueSize -= pktListTmp.pkt->size + sizeof(pktListTmp);
+            m_duration -= pktListTmp.pkt->duration;
+            av_packet_move_ref(pKtOut, pktListTmp.pkt);   //将所有权转移给传出参数
+            av_packet_free(&pktListTmp.pkt);
+            nRet = 1;
+            break;
+        }
+        else
+        {
+            if(bBlock)
+            {
+                SDL_CondWait(m_pCond, m_pMutex);
+            }
+            else
+            {
+                nRet = 0;
+                break;
+            }
+        }
+    }
+
+    SDL_UnlockMutex(m_pMutex);
+    return nRet;
 }
