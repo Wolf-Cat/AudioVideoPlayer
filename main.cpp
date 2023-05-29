@@ -88,5 +88,7 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -2;
     }
 
+    //以音频为主，去做音视频同步
+    pAVglobal->SetAudioVideoSyncType(AV_SYNC_AUDIO_MASTER);
     return 0;
 }
