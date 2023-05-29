@@ -17,7 +17,7 @@ namespace {
 static SDL_Window *g_pWindow = NULL;
 static SDL_Renderer *g_pRenderer = NULL;
 
-AVGlobal* PlayerInit(const char* pFileName);
+int PlayerInit(const char* pFileName, AVGlobal *pAVGlobal);
 
 
 int main(int argc, char *agrv[])
@@ -31,8 +31,7 @@ int main(int argc, char *agrv[])
     char input_file_path[] = "./testVedio.mp4";
     int nRet = -1;
     SDL_Texture *pTextTure = NULL;
-    AVGlobal *pAVGlobal = nullptr;
-
+    AVGlobal* pAVglobal = new AVGlobal;
     AVFormatContext *pFmtContex = NULL;
     AVStream *pInstream = NULL;
     int nIdx = 0;
@@ -61,8 +60,7 @@ int main(int argc, char *agrv[])
         goto __END;
     }
 
-    pAVGlobal = PlayerInit(input_file_path);
-    if(nullptr == pAVGlobal)
+    if(PlayerInit(input_file_path, pAVglobal) != 0)
     {
         av_log(NULL, AV_LOG_FATAL, "Init avplayer failed!\n");
     }
@@ -72,26 +70,23 @@ __END:
     return 0;
 }
 
-AVGlobal* PlayerInit(const char* pFileName)
+int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
 {
     if(nullptr == pFileName)
     {
-        return nullptr;
+        return -1;
     }
 
-    AVGlobal *pAvGlobal = new AVGlobal;
-    if(pAvGlobal == nullptr)
+    if(nullptr == pAVglobal)
     {
-        goto __Error;
+        return -2;
     }
 
-    if(pAvGlobal->m_queAudio.InitPacketQueue() < 0 ||
-        pAvGlobal->m_queVedio.InitPacketQueue() < 0)
+    if(pAVglobal->m_queAudio.InitPacketQueue() < 0 ||
+            pAVglobal->m_queVedio.InitPacketQueue() < 0)
     {
-        goto __Error;
+        return -2;
     }
 
-__Error:
-
-    return pAvGlobal;
+    return 0;
 }
