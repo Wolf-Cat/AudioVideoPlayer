@@ -4,7 +4,7 @@
  （1）主线程
  （2）read_thread：专门用于从多媒体文件中读取音视频包
  （3）decode_thread：用于处理视频解码的线程
- （4）设置扬声器的时候由系统自动分配的, 在audio_open函数中
+ （4）设置扬声器的时候由系统自动分配的, 在SDL_OpenAudio函数中创建
 
 *. ffmpeg的一些结构体说明
 AVFifo:
