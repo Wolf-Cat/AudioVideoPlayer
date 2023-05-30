@@ -103,3 +103,28 @@ int AVPacketQueue::GetPacketQueueElement(AVPacket *pKtOut, bool bBlock)
     SDL_UnlockMutex(m_pMutex);
     return nRet;
 }
+
+void AVPacketQueue::PacketQueueClear()
+{
+    MyAVPacketList pktListTmp;
+
+    SDL_LockMutex(m_pMutex);
+    while(av_fifo_read(m_pPacketList, &pktListTmp, 1) >= 0)
+    {
+        av_packet_free(&pktListTmp.pkt);
+    }
+
+    m_nCountPackets = 0;
+    m_nQueueSize = 0;
+    m_duration = 0;
+    SDL_UnlockMutex(m_pMutex);
+}
+
+void AVPacketQueue::PacketQueueDestory()
+{
+    PacketQueueClear();
+    av_fifo_freep2(&m_pPacketList);
+
+    SDL_DestroyMutex(m_pMutex);
+    SDL_DestroyCond(m_pCond);
+}
