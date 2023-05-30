@@ -19,6 +19,7 @@ add_executable(AudioVideoPlayer
 target_link_libraries(AudioVideoPlayer
         avformat
         avutil
+        avcodec
 )
 
 target_link_libraries(AudioVideoPlayer
