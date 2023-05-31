@@ -11,16 +11,24 @@ enum {
 
 class AVGlobal {
 public:
-    AVPacketQueue m_queAudio;
-    AVPacketQueue m_queVedio;
-
     void SetAudioVideoSyncType(int eSyncTYpe);
-private:
+
+public:
+    //媒体文件相关
     char *m_pFileName = nullptr;
+
+    //音视频同步相关
     int m_eTypeSync = 0;    //音视频同步的方式
 
+    //音频相关
+    AVPacketQueue m_queAudio;
     int m_nAudioIndex = -1;
+
+    //视频相关
+    AVPacketQueue m_queVedio;
     int m_nVideoIndex = -1;
+
+    //线程相关
     bool m_bQuit = false;
 };
 
