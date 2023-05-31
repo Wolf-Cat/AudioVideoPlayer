@@ -6,6 +6,15 @@ extern "C" {
     #include <SDL2/SDL_mutex.h>
 };
 
+#define VIDEO_PICTURE_QUEUE_SIZE 9
+
+/* 帧率的对象解释
+ typedef struct AVRational{
+    int num; ///< Numerator  分子
+    int den; ///< Denominator  分母
+} AVRational;
+ */
+
 typedef struct _VideoFrame {
     AVFrame *pVframe;
     double pts;
@@ -17,17 +26,12 @@ typedef struct _VideoFrame {
     AVRational frameRate;
 } VideoFrame;
 
-/* 帧率的对象解释
- typedef struct AVRational{
-    int num; ///< Numerator  分子
-    int den; ///< Denominator  分母
-} AVRational;
- */
-
 class VideoFrameQueue {
 public:
+    int InitVideoFrameQueue(int nMaxFrameCount);
+
 private:
-    VideoFrame m_queue[9];
+    VideoFrame m_queue[VIDEO_PICTURE_QUEUE_SIZE];
     int nRindex = 0;
     int nWindex = 0;
     int nSize = 0;
@@ -35,6 +39,5 @@ private:
     SDL_mutex *m_pMutex = NULL;
     SDL_cond *m_pCond = NULL;
 };
-
 
 #endif //AUDIOVIDEOPLAYER_VIDEOFRAMEQUEUE_H
