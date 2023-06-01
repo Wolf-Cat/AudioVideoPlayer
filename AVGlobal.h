@@ -6,6 +6,8 @@
 
 extern "C" {
     #include "libavformat/avformat.h"
+    #include "SDL2/SDL_thread.h"
+    #include "SDL2/SDL.h"
 };
 
 enum {
@@ -34,8 +36,11 @@ public:
     AVPacketQueue m_queVedio;
     VideoFrameQueue m_videoFrameQueue;    //解码后的视频帧队列
     int m_nVideoIndex = -1;
+    SDL_Texture *m_pTextTure = NULL;
 
     //线程相关
+    SDL_Thread   *m_pReadThread = NULL;
+    SDL_Thread   *m_pDecodeThread = NULL;
     bool m_bQuit = false;
 };
 

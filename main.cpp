@@ -18,7 +18,7 @@ static SDL_Window *g_pWindow = NULL;
 static SDL_Renderer *g_pRenderer = NULL;
 
 int PlayerInit(const char* pFileName, AVGlobal *pAVGlobal);
-
+int ReadAVDataThread(void *arg);        //读取音视频数据线程
 
 int main(int argc, char *agrv[])
 {
@@ -30,7 +30,6 @@ int main(int argc, char *agrv[])
 
     char input_file_path[] = "./testVedio.mp4";
     int nRet = -1;
-    SDL_Texture *pTextTure = NULL;
 
     AVGlobal* pAVglobal = new AVGlobal;
 
@@ -95,5 +94,26 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
 
     //以音频为主，去做音视频同步
     pAVglobal->SetAudioVideoSyncType(AV_SYNC_AUDIO_MASTER);
+
+    pAVglobal->m_pReadThread = SDL_CreateThread(ReadAVDataThread, "read_thread", pAVglobal);
+    if(pAVglobal->m_pReadThread == NULL)
+    {
+        av_log(NULL, AV_LOG_FATAL, "SDL_CreateThread:%s\n", SDL_GetError());
+        return -4;
+    }
+
     return 0;
+}
+
+int ReadAVDataThread(void *arg)
+{
+    int nRet = -1;
+    AVGlobal *pAVglobal = (AVGlobal *)arg;
+    if(arg == NULL || pAVglobal == NULL)
+    {
+        goto __ERROR;
+    }
+
+    __ERROR:
+    return nRet;
 }

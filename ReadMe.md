@@ -8,9 +8,9 @@
 
 *. ffmpeg的一些结构体说明
 AVFifo:
-AVFormatContext: 存储音视频封装格式中包含的信息的结构体
+AVFormatContext: 存储音视频封装格式中包含的信息
     AVStream: 存储音频/视频流信息
-    AVCodecContext: 编解码上下文的结构体
+    AVCodecContext: 编解码上下文
     AVCodec: 编解码器
 
 AVPacket: 包，解码前的数据，音视频压缩的数据
