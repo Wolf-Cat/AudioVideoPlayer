@@ -29,3 +29,16 @@ int VideoFrameQueue::InitVideoFrameQueue(int nMaxFrameCount)
 
     return 0;
 }
+
+void VideoFrameQueue::DestoryFrameQueue()
+{
+    for (int i = 0; i < VIDEO_PICTURE_QUEUE_SIZE; ++i)
+    {
+        VideoFrame *pVideoframe = &m_queue[i];
+        av_frame_unref(pVideoframe->pVframe);
+        av_frame_free(&pVideoframe->pVframe);
+    }
+
+    SDL_DestroyMutex(m_pMutex);
+    SDL_DestroyCond(m_pCond);
+}

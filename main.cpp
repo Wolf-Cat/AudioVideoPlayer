@@ -31,10 +31,8 @@ int main(int argc, char *agrv[])
     char input_file_path[] = "./testVedio.mp4";
     int nRet = -1;
     SDL_Texture *pTextTure = NULL;
+
     AVGlobal* pAVglobal = new AVGlobal;
-    AVFormatContext *pFmtContex = NULL;
-    AVStream *pInstream = NULL;
-    int nIdx = 0;
 
     if(SDL_Init(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) == 0))
     {
@@ -82,10 +80,17 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -2;
     }
 
+    //初始化解码前音频包队列
     if(pAVglobal->m_queAudio.InitPacketQueue() < 0 ||
             pAVglobal->m_queVedio.InitPacketQueue() < 0)
     {
         return -2;
+    }
+
+    //初始化解码后视频帧队列
+    if(pAVglobal->m_videoFrameQueue.InitVideoFrameQueue(VIDEO_PICTURE_QUEUE_SIZE) < 0)
+    {
+        return -3;
     }
 
     //以音频为主，去做音视频同步

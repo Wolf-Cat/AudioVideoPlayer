@@ -29,6 +29,7 @@ typedef struct _VideoFrame {
 class VideoFrameQueue {
 public:
     int InitVideoFrameQueue(int nMaxFrameCount);
+    void DestoryFrameQueue();
 
 private:
     VideoFrame m_queue[VIDEO_PICTURE_QUEUE_SIZE];

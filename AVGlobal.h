@@ -2,6 +2,11 @@
 #define AUDIOVIDEOPLAYER_AVGLOBAL_H
 
 #include "AVPacketQueue.h"
+#include "VideoFrameQueue.h"
+
+extern "C" {
+    #include "libavformat/avformat.h"
+};
 
 enum {
     AV_SYNC_AUDIO_MASTER,           //以音频为主同步
@@ -16,6 +21,7 @@ public:
 public:
     //媒体文件相关
     char *m_pFileName = nullptr;
+    AVFormatContext *m_pAVformatContext = NULL;
 
     //音视频同步相关
     int m_eTypeSync = 0;    //音视频同步的方式
@@ -26,6 +32,7 @@ public:
 
     //视频相关
     AVPacketQueue m_queVedio;
+    VideoFrameQueue m_videoFrameQueue;    //解码后的视频帧队列
     int m_nVideoIndex = -1;
 
     //线程相关
