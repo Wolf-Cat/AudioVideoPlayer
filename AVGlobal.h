@@ -6,6 +6,7 @@
 
 extern "C" {
     #include "libavformat/avformat.h"
+    #include "libavutil/log.h"
     #include "SDL2/SDL_thread.h"
     #include "SDL2/SDL.h"
 };
