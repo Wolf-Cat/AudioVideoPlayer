@@ -92,6 +92,7 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -3;
     }
 
+    pAVglobal->m_pFileName = (char *)pFileName;
     //以音频为主，去做音视频同步
     pAVglobal->SetAudioVideoSyncType(AV_SYNC_AUDIO_MASTER);
 
@@ -108,9 +109,20 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
 int ReadAVDataThread(void *arg)
 {
     int nRet = -1;
+    AVPacket *pktTmp = NULL;
+
     AVGlobal *pAVglobal = (AVGlobal *)arg;
-    if(arg == NULL || pAVglobal == NULL)
+    if(arg == NULL || pAVglobal == NULL) {
+        goto __ERROR;
+    }
+
+    //打开媒体文件，获取到媒体信息上下文AVFormatContext
+    nRet = avformat_open_input(&pAVglobal->m_pAVformatContext, pAVglobal->m_pFileName, NULL, NULL);
+
+    nRet =1;
+    if(nRet < 0)
     {
+        av_log(NULL, AV_LOG_ERROR, "Can not open file:%s, %d, %s\n", pAVglobal->m_pFileName, nRet, av_err2str(nRet));
         goto __ERROR;
     }
 
