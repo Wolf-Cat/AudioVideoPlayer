@@ -104,11 +104,13 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -4;
     }
 
+    SDL_Delay(5000);
     return 0;
 }
 
 int ReadAVDataThread(void *arg)
 {
+    av_log(NULL, AV_LOG_DEBUG, "Enter ReadAVDataThread\n");
     int nRet = -1;
     AVPacket *pktTmp = NULL;
 
@@ -119,8 +121,6 @@ int ReadAVDataThread(void *arg)
 
     //打开媒体文件，获取到媒体信息上下文AVFormatContext
     nRet = avformat_open_input(&pAVglobal->m_pAVformatContext, pAVglobal->m_pFileName, NULL, NULL);
-
-    nRet =1;
     if(nRet < 0)
     {
         av_log(NULL, AV_LOG_ERROR, "Can not open file:%s, %d, %s\n", pAVglobal->m_pFileName, nRet, my_av_err2str(nRet));
