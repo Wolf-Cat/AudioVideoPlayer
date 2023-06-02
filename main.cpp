@@ -104,7 +104,7 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -4;
     }
 
-    SDL_Delay(5000);
+    SDL_Delay(5000);   //防止主线程马上退出，无法执行子线程
     return 0;
 }
 
@@ -124,6 +124,34 @@ int ReadAVDataThread(void *arg)
     if(nRet < 0)
     {
         av_log(NULL, AV_LOG_ERROR, "Can not open file:%s, %d, %s\n", pAVglobal->m_pFileName, nRet, my_av_err2str(nRet));
+        goto __ERROR;
+    }
+
+    //找到音频流, 视频流, (或者字幕流)的流索引，AVStream **streams
+    for(int i = 0; i < pAVglobal->m_pAVformatContext->nb_streams; ++i)
+    {
+        AVStream *pSt = pAVglobal->m_pAVformatContext->streams[i];
+        enum AVMediaType eType = pSt->codecpar->codec_type;
+        if(eType == AVMEDIA_TYPE_AUDIO && pAVglobal->m_nAudioIndex == -1)
+        {
+            pAVglobal->m_nAudioIndex = i;
+        }
+        if(eType == AVMEDIA_TYPE_VIDEO && pAVglobal->m_nVideoIndex == -1)
+        {
+            pAVglobal->m_nVideoIndex = i;
+        }
+
+        //已经找到视频和音频的流索引
+        if(pAVglobal->m_nAudioIndex >= 0 && pAVglobal->m_nVideoIndex >= 0)
+        {
+            av_log(NULL, AV_LOG_DEBUG, "already find audioIndex:%d , videoIndex:%d", pAVglobal->m_nAudioIndex, pAVglobal->m_nVideoIndex);
+            break;
+        }
+    }
+
+    if(pAVglobal->m_nAudioIndex == -1 || pAVglobal->m_nVideoIndex == -1)
+    {
+        av_log(NULL, AV_LOG_ERROR, "find audioIndex:%d , videoIndex:%d error", pAVglobal->m_nAudioIndex, pAVglobal->m_nVideoIndex);
         goto __ERROR;
     }
 
