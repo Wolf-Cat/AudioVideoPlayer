@@ -6,6 +6,7 @@ extern "C" {
     #include <SDL2/SDL.h>
 }
 #include "AVGlobal.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -122,7 +123,7 @@ int ReadAVDataThread(void *arg)
     nRet =1;
     if(nRet < 0)
     {
-        av_log(NULL, AV_LOG_ERROR, "Can not open file:%s, %d, %s\n", pAVglobal->m_pFileName, nRet, av_err2str(nRet));
+        av_log(NULL, AV_LOG_ERROR, "Can not open file:%s, %d, %s\n", pAVglobal->m_pFileName, nRet, my_av_err2str(nRet));
         goto __ERROR;
     }
 
