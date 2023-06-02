@@ -10,6 +10,8 @@
 AVFifo:
 AVFormatContext: 存储音视频封装格式中包含的信息
     AVStream: 存储音频/视频流信息
+        AVCodecParameters: 包含AVCodecContext解码结构体的结构体参数
+            AVCodecID: 解码器ID, AV_CODEC_ID_H264, AV_CODEC_ID_AAC等等
     AVCodecContext: 编解码上下文
     AVCodec: 编解码器
 

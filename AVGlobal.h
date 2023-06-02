@@ -19,6 +19,7 @@ enum {
 class AVGlobal {
 public:
     void SetAudioVideoSyncType(int eSyncTYpe);
+    int GetStreamComponent(int nStreamIndex);   //根据流索引去获取具体的音频和视频编码的组件
 
 public:
     //媒体文件相关
