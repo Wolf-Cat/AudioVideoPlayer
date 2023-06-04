@@ -51,7 +51,9 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
             {
                 goto __ERROR;
             }
-            
+
+
+
             break;
         case AVMEDIA_TYPE_VIDEO:
             break;
@@ -73,12 +75,14 @@ int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
     wanted_spec.channels = nChannles;
     wanted_spec.silence = 0;    //静音的值
     wanted_spec.samples = SDL_AUDIO_BUFFER_SIZE;   //音频缓存区的大小
+    wanted_spec.callback = CallBackSdlAudio;
     wanted_spec.userdata = (void *)this;
 
     av_log(NULL, AV_LOG_INFO, "wanted spec:channels:%d, samp_fmt:%d, sample_rate:%d\n"
             ,wanted_spec.channels, wanted_spec.format, wanted_spec.freq);
 
     //wanted_spec：期望的参数。 obtain_spec：实际音频设备的参数，一般情况下设置为NULL即可。
+    //里面会自动启动一个线程
     if(SDL_OpenAudio(&wanted_spec, &obtain_spec) < 0)
     {
         av_log(NULL, AV_LOG_ERROR, "SDL_OpenAudio: %s\n", SDL_GetError());
@@ -86,4 +90,17 @@ int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
     }
 
     return obtain_spec.size;
+}
+
+/* stream 指向音频数据的buffer
+ * len: 设备想要多少数据字节数
+ * */
+void CallBackSdlAudio(void *userdata, Uint8 *stream, int len)
+{
+    AVGlobal *pGlobal = (AVGlobal *)userdata;
+
+    while(len > 0)
+    {
+        //判断解码后的PCM数据是否还有
+    }
 }

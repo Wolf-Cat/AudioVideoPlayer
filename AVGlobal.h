@@ -19,6 +19,8 @@ enum {
 
 #define SDL_AUDIO_BUFFER_SIZE 1024
 
+static void CallBackSdlAudio(void *userdata, Uint8 *stream, int len);
+
 class AVGlobal {
 public:
     void SetAudioVideoSyncType(int eSyncTYpe);
@@ -36,6 +38,10 @@ public:
     //音频相关
     AVPacketQueue m_queAudio;
     int m_nAudioIndex = -1;
+
+    uint8_t *pcmbuffer;               //解码后的pcm数据存放的
+    unsigned int audio_buff_size;     //pcmbuffer的大小
+    unsigned int audio_buff_use_pos;  //buffer中已经使用的数据的位置
 
     //视频相关
     AVPacketQueue m_queVedio;
