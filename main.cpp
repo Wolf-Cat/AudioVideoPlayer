@@ -155,6 +155,11 @@ int ReadAVDataThread(void *arg)
         goto __ERROR;
     }
 
+    if(pAVglobal->m_nAudioIndex >= 0)
+    {
+        pAVglobal->GetStreamComponent(pAVglobal->m_nAudioIndex);
+    }
+
     __ERROR:
     return nRet;
 }

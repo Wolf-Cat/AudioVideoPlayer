@@ -21,6 +21,8 @@ AVFrame: 帧，解码后的数据，音视频解压后的原始数据，视频�
 
 AVPacket 和 AVFrame是采用引用计数的方式进行内部资源的管理
 
+SwrContext: 音频重采样上下文
+
 *. 一些函数说明
 avformat_find_stream_info()
 会读取一段视频文件数据并尝试解码，将取到的流信息填入AVFormatContext.streams中。

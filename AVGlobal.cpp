@@ -35,7 +35,7 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
         goto __ERROR;
     }
 
-    //根据AVCodec结构体，初始化AVCodecContext
+    //用于打开解码器，并将AVCodecContext和解码器绑定
     nRet = avcodec_open2(pCodecContext, pCodec, NULL);
     if(nRet < 0)
     {
@@ -45,6 +45,13 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
 
     switch (pCodecContext->codec_type) {
         case AVMEDIA_TYPE_AUDIO:
+            //打开音频设备
+            nRet = OpenAudioDevice(pCodecContext->channels,pCodecContext->sample_rate);
+            if(nRet < 0)
+            {
+                goto __ERROR;
+            }
+            
             break;
         case AVMEDIA_TYPE_VIDEO:
             break;
@@ -55,4 +62,28 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
 
     __ERROR:
     return nRet;
+}
+
+int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
+{
+    //设置音频参数
+    SDL_AudioSpec wanted_spec, obtain_spec;
+    wanted_spec.freq = nSampleRate;
+    wanted_spec.format = AUDIO_S16SYS;
+    wanted_spec.channels = nChannles;
+    wanted_spec.silence = 0;    //静音的值
+    wanted_spec.samples = SDL_AUDIO_BUFFER_SIZE;   //音频缓存区的大小
+    wanted_spec.userdata = (void *)this;
+
+    av_log(NULL, AV_LOG_INFO, "wanted spec:channels:%d, samp_fmt:%d, sample_rate:%d\n"
+            ,wanted_spec.channels, wanted_spec.format, wanted_spec.freq);
+
+    //wanted_spec：期望的参数。 obtain_spec：实际音频设备的参数，一般情况下设置为NULL即可。
+    if(SDL_OpenAudio(&wanted_spec, &obtain_spec) < 0)
+    {
+        av_log(NULL, AV_LOG_ERROR, "SDL_OpenAudio: %s\n", SDL_GetError());
+        return -1;
+    }
+
+    return obtain_spec.size;
 }

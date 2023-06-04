@@ -17,10 +17,13 @@ enum {
     AV_SYNC_EXTERNAL_CLOCK_MASTER   //以外部为主时钟同步
 };
 
+#define SDL_AUDIO_BUFFER_SIZE 1024
+
 class AVGlobal {
 public:
     void SetAudioVideoSyncType(int eSyncTYpe);
     int GetStreamComponent(int nStreamIndex);   //根据流索引去获取具体的音频和视频编码的组件
+    int OpenAudioDevice(int nChannles, int nSampleRate);
 
 public:
     //媒体文件相关
