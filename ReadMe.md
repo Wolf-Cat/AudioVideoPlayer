@@ -13,8 +13,10 @@ AVFormatContext: 存储音视频封装格式中包含的信息
         AVCodecParameters: 包含AVCodecContext解码结构体的结构体参数
             AVCodecID: 解码器ID, AV_CODEC_ID_H264, AV_CODEC_ID_AAC等等
 
-AVCodec: 编解码器   
+ 
 AVCodecContext: 编解码器上下文
+    AVCodec: 编解码器  
+    AVCodecID
 
 AVPacket: 包，解码前的数据，音视频压缩的数据
 AVFrame: 帧，解码后的数据，音视频解压后的原始数据，视频对应的是YUV，音频对应的是PCM
@@ -27,6 +29,12 @@ SwrContext: 音频重采样上下文
 avformat_find_stream_info()
 会读取一段视频文件数据并尝试解码，将取到的流信息填入AVFormatContext.streams中。
 AVFormatContext.streams是一个指针数组，数组大小是AVFormatContext.nb_streams
+
+//将编码的数据包发送给编解码器进行解码
+avcodec_send_packet(AVCodecContext *avctx, const AVPacket *pkt);
+
+//从编解码器的输出队列中获取解码后的输出帧。frame为输出参数
+avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 
 av_read_frame()
 看上去命名像都的是帧，其实读出来的是压缩编码的AVPacket

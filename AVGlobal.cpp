@@ -52,7 +52,7 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
                 goto __ERROR;
             }
 
-
+            m_pCodecCtxAudio = pCodecContext;
 
             break;
         case AVMEDIA_TYPE_VIDEO:
@@ -69,7 +69,7 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
 int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
 {
     //设置音频参数
-    SDL_AudioSpec wanted_spec, obtain_spec;
+    SDL_AudioSpec wanted_spec;
     wanted_spec.freq = nSampleRate;
     wanted_spec.format = AUDIO_S16SYS;
     wanted_spec.channels = nChannles;
@@ -77,6 +77,8 @@ int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
     wanted_spec.samples = SDL_AUDIO_BUFFER_SIZE;   //音频缓存区的大小
     wanted_spec.callback = CallBackSdlAudio;
     wanted_spec.userdata = (void *)this;
+
+    SDL_AudioSpec obtain_spec;  //输出参数
 
     av_log(NULL, AV_LOG_INFO, "wanted spec:channels:%d, samp_fmt:%d, sample_rate:%d\n"
             ,wanted_spec.channels, wanted_spec.format, wanted_spec.freq);
@@ -90,6 +92,45 @@ int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
     }
 
     return obtain_spec.size;
+}
+
+int AVGlobal::DecodeAudioPacket()
+{
+    int nRet = 0;
+
+    for (;;) {
+        if(m_queAudioPacket.GetPacketQueueElement(&m_audioPkt, false) <= 0)
+        {
+            av_log(NULL, AV_LOG_ERROR, "Can't get packet from audio queue");
+            break;
+        }
+
+        //将编码的数据包发送给编解码器进行解码
+        nRet = avcodec_send_packet(m_pCodecCtxAudio, &m_audioPkt);
+        av_packet_unref(&m_audioPkt);
+        if(nRet < 0)
+        {
+            av_log(m_pCodecCtxAudio, AV_LOG_ERROR, "Failed to send pkt to decoder!\n");
+            goto __END;
+        }
+
+        while(nRet >= 0)
+        {
+            nRet = avcodec_receive_frame(m_pCodecCtxAudio, &m_audioFrame);
+            if(nRet == AVERROR(EAGAIN) || nRet == AVERROR_EOF)
+            {
+                break;
+            }
+            else if(nRet < 0)
+            {
+                av_log(m_pCodecCtxAudio, AV_LOG_ERROR, "Failed to receive frame from decoder!\n");
+                goto __END;
+            }
+        }
+    }
+
+    __END:
+    return nRet;
 }
 
 /* stream 指向音频数据的buffer
@@ -112,7 +153,7 @@ void CallBackSdlAudio(void *userdata, Uint8 *stream, int lenDeviceNeed)
         if(pGlobal->m_audio_buff_use_pos >= pGlobal->m_audio_buff_size)
         {
             //已经没有数据，需要进行解码packet
-            lenCodec = DecodeAudioPacket();
+            lenCodec = pGlobal->DecodeAudioPacket();
             if(lenCodec > 0)
             {
                 pGlobal->m_audio_buff_size = lenCodec;

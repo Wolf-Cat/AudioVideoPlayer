@@ -26,6 +26,7 @@ public:
     void SetAudioVideoSyncType(int eSyncTYpe);
     int GetStreamComponent(int nStreamIndex);   //根据流索引去获取具体的音频和视频编码的组件
     int OpenAudioDevice(int nChannles, int nSampleRate);
+    int DecodeAudioPacket();
 
 public:
     //媒体文件相关
@@ -36,8 +37,11 @@ public:
     int m_eTypeSync = 0;    //音视频同步的方式
 
     //音频相关
-    AVPacketQueue m_queAudio;
     int m_nAudioIndex = -1;
+    AVPacketQueue m_queAudioPacket;
+    AVCodecContext *m_pCodecCtxAudio;
+    AVPacket m_audioPkt;
+    AVFrame m_audioFrame;
 
     uint8_t *m_pcmbuffer;               //解码后的pcm数据存放的
     unsigned int m_audio_buff_size;     //pcmbuffer的大小
@@ -47,6 +51,7 @@ public:
     AVPacketQueue m_queVedio;
     VideoFrameQueue m_videoFrameQueue;    //解码后的视频帧队列
     int m_nVideoIndex = -1;
+
     SDL_Texture *m_pTextTure = NULL;
 
     //线程相关
