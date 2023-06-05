@@ -34,6 +34,7 @@ public:
     //音视频同步相关
     int m_eTypeSync = 0;              //音视频同步的方式
     double m_clock_audio = 0;         //音频当前的播放时钟
+    double m_clock_video = 0;         //视频的时钟
     double m_vframe_time = 0;         //视频当前播放的时间
     double m_vframe_last_delay = 0;   //上一次渲染视频帧的delay时间
 

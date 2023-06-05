@@ -1,5 +1,4 @@
 #include "AVCallBackFunc.h"
-#include "AVGlobal.h"
 #include "Utils.h"
 /* stream 指向音频数据的buffer
  * len: 设备想要多少数据字节数
@@ -182,12 +181,22 @@ int VideoDecodeThread(void *arg)
 {
     int nRet = -1;
     AVGlobal *pGlobal = (AVGlobal *)arg;
-    AVFrame *pvFrame = av_frame_alloc();
-
     if(pGlobal == NULL)
     {
         return nRet;
     }
+
+    AVFrame *pvFrame = av_frame_alloc();
+    double durationCurFrame = 0;
+    double ptsSecond = 0;
+    double ptsTime = 0;
+    //获取帧率，一秒钟多少张图, //num = 25(分子), den = 1（分母），每秒25帧;
+    AVRational vfps = av_guess_frame_rate(pGlobal->m_pAVformatContext, pGlobal->m_pStreamVideo, NULL);
+
+    //num = 1, den = 90000, AStream里面的time_base是单元时间。
+    //每种格式的time_base的值不一样，根据采样来计算，比如mpeg的pts、dts都是以90kHz来采样的，所以采样间隔就是1/900000秒。
+    //时基， 通过time_base可以把dts/pts转化为真正的时间。ffmpeg其他结构体中也有这个字段，只有AVStream中的time_base*pts=真正的时间（雷神）
+    AVRational vtime_base = pGlobal->m_pStreamVideo->time_base;
 
     for(;;)
     {
@@ -225,10 +234,45 @@ int VideoDecodeThread(void *arg)
                 nRet = -1;
                 goto __ERROR;
             }
+
+            //音视频同步
+            //1. 首先计算这一帧的播放时长是多少
+            durationCurFrame = (vfps.num && vfps.den ? av_q2d((AVRational){vfps.den, vfps.num}): 0);
+            //2. 将pts转化为以秒为单位的时间
+            ptsSecond = (pvFrame->pts == AV_NOPTS_VALUE) ? NAN : pvFrame->pts * av_q2d(vtime_base);
+            //3. 计算视频的clock时长到哪了
+            ptsSecond = SynchronizeVideoPts(pGlobal, pvFrame, ptsSecond);
+
+            av_frame_unref(pvFrame);
         }
     }
 
     __ERROR:
+    av_frame_free(&pvFrame);
     return nRet;
 }
 
+double SynchronizeVideoPts(AVGlobal *pGlobal, AVFrame *frame_src, double pts)
+{
+    if(pGlobal == NULL)
+    {
+        return -1;
+    }
+
+    double frame_delay_uint_time;     //单位时间
+    if(pts != 0)
+    {
+        pGlobal->m_clock_video = pts;
+    }
+    else
+    {
+        pts = pGlobal->m_clock_video;
+    }
+
+    frame_delay_uint_time = av_q2d(pGlobal->m_pCodecCtxVideo->time_base);
+    //如果有重复帧
+    frame_delay_uint_time += frame_src->repeat_pict * (frame_delay_uint_time * 0.5);
+    pGlobal->m_clock_video += frame_delay_uint_time;
+
+    return pts;
+}
