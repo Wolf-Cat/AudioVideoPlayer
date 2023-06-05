@@ -21,6 +21,7 @@ target_link_libraries(AudioVideoPlayer
         avformat
         avutil
         avcodec
+        swresample
 )
 
 target_link_libraries(AudioVideoPlayer
