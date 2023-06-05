@@ -52,10 +52,22 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
                 goto __ERROR;
             }
 
+            m_pSreamAudio = pStream;
             m_pCodecCtxAudio = pCodecContext;
+
+            //播放音频, 0为立即开启扬声器， 非0为过这么长时间再开启扬声器
+            SDL_PauseAudio(0);
 
             break;
         case AVMEDIA_TYPE_VIDEO:
+            m_pStreamVideo = pStream;
+            m_pCondecCtxVideo = pCodecContext;
+
+            //音视频同步的相关字段
+            m_vframe_time = (double)av_gettime() / 1000000.0;  //换成的秒时间戳 1685954910   2023-06-05 16:48:30
+            m_vframe_last_delay = 40e-3;  // 0.04
+            m_video_current_pts_time = av_gettime();   //微秒时间戳：1685954910409425   2023-06-05 16:48:30
+
             break;
         default:
             av_log(pCodecContext, AV_LOG_ERROR, "Unknow Codec Type: %d\n", pCodecContext->codec_type);

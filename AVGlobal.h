@@ -7,6 +7,7 @@
 extern "C" {
     #include "libavformat/avformat.h"
     #include "libavutil/log.h"
+    #include "libavutil/time.h"
     #include "libswresample/swresample.h"     //音频重采样头文件
     #include "SDL2/SDL_thread.h"
     #include "SDL2/SDL.h"
@@ -31,17 +32,22 @@ public:
 
 public:
     //媒体文件相关
-    char *m_pFileName = nullptr;
+    char *m_pFileName = NULL;
     AVFormatContext *m_pAVformatContext = NULL;
 
     //音视频同步相关
-    int m_eTypeSync = 0;    //音视频同步的方式
-    double m_clock_audio = 0;
+    int m_eTypeSync = 0;              //音视频同步的方式
+    double m_clock_audio = 0;         //音频当前的播放时钟
+    double m_vframe_time = 0;         //视频当前播放的时间
+    double m_vframe_last_delay = 0;   //上一次渲染视频帧的delay时间
+
+    int64_t m_video_current_pts_time = 0;  //当前视频帧的pts的系统时间
 
     //音频相关
     int m_nAudioIndex = -1;
     AVPacketQueue m_queAudioPacket;
-    AVCodecContext *m_pCodecCtxAudio;
+    AVCodecContext *m_pCodecCtxAudio = NULL;
+    AVStream  *m_pSreamAudio = NULL;
     AVPacket m_audioPkt;
     AVFrame m_audioFrame;
     SwrContext *m_pAudioSwrCtx = NULL;
@@ -51,6 +57,8 @@ public:
     unsigned int m_audio_buff_use_pos = 0;  //buffer中已经使用的数据的位置
 
     //视频相关
+    AVStream  *m_pStreamVideo = NULL;
+    AVCodecContext *m_pCondecCtxVideo = NULL;
     AVPacketQueue m_queVedio;
     VideoFrameQueue m_videoFrameQueue;    //解码后的视频帧队列
     int m_nVideoIndex = -1;
