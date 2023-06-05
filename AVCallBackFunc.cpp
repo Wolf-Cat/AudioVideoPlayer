@@ -11,7 +11,7 @@ int ReadAVDataThread(void *arg)
 {
     av_log(NULL, AV_LOG_DEBUG, "Enter ReadAVDataThread\n");
     int nRet = -1;
-    AVPacket *pktTmp = NULL;
+    AVPacket *pktTmp = av_packet_alloc();
 
     AVGlobal *pAVglobal = (AVGlobal *)arg;
     if(arg == NULL || pAVglobal == NULL) {
