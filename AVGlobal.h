@@ -7,6 +7,7 @@
 extern "C" {
     #include "libavformat/avformat.h"
     #include "libavutil/log.h"
+    #include "libswresample/swresample.h"     //音频重采样头文件
     #include "SDL2/SDL_thread.h"
     #include "SDL2/SDL.h"
 };
@@ -42,10 +43,11 @@ public:
     AVCodecContext *m_pCodecCtxAudio;
     AVPacket m_audioPkt;
     AVFrame m_audioFrame;
+    SwrContext *m_pAudioSwrCtx = NULL;
 
-    uint8_t *m_pcmbuffer;               //解码后的pcm数据存放的
-    unsigned int m_audio_buff_size;     //pcmbuffer的大小
-    unsigned int m_audio_buff_use_pos;  //buffer中已经使用的数据的位置
+    uint8_t *m_pcmbuffer = NULL;               //解码后的pcm数据存放的
+    unsigned int m_audio_buff_size = 0;     //pcmbuffer的大小
+    unsigned int m_audio_buff_use_pos = 0;  //buffer中已经使用的数据的位置
 
     //视频相关
     AVPacketQueue m_queVedio;

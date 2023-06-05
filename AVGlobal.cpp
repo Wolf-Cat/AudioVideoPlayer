@@ -127,6 +127,26 @@ int AVGlobal::DecodeAudioPacket()
                 goto __END;
             }
         }
+
+        //拿到解码后音频帧需要判断音频帧的参数与扬声器的是否一致的，如果不一致需要进行重采样
+        if(m_pAudioSwrCtx == NULL)
+        {
+            AVChannelLayout ch_layout_in, cha_layout_out;
+            av_channel_layout_copy(&ch_layout_in, &m_pCodecCtxAudio->ch_layout);
+            av_channel_layout_copy(&cha_layout_out, &ch_layout_in);
+
+            //重采样一般比较多的是针对采样格式的重采样
+            if(m_pCodecCtxAudio->sample_fmt != AV_SAMPLE_FMT_S16)
+            {
+                swr_alloc_set_opts2(&m_pAudioSwrCtx, &cha_layout_out,
+                                    AV_SAMPLE_FMT_S16, m_pCodecCtxAudio->sample_rate,
+                                    &ch_layout_in,
+                                    m_pCodecCtxAudio->sample_fmt, m_pCodecCtxAudio->sample_rate,
+                                    0, NULL);
+
+                swr_init(m_pAudioSwrCtx);
+            }
+        }
     }
 
     __END:
