@@ -53,11 +53,12 @@ public:
     unsigned int m_audio_buff_use_pos = 0;  //buffer中已经使用的数据的位置
 
     //视频相关
+    int m_nVideoIndex = -1;
     AVStream  *m_pStreamVideo = NULL;
-    AVCodecContext *m_pCondecCtxVideo = NULL;
+    AVCodecContext *m_pCodecCtxVideo = NULL;
     AVPacketQueue m_queVideoPacket;
     VideoFrameQueue m_videoFrameQueue;    //解码后的视频帧队列
-    int m_nVideoIndex = -1;
+    AVPacket  m_videoPkt;
 
     SDL_Texture *m_pTextTure = NULL;
 

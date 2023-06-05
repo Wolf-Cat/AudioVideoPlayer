@@ -181,9 +181,54 @@ void CallBackSdlAudio(void *userdata, Uint8 *stream, int lenDeviceNeed)
 int VideoDecodeThread(void *arg)
 {
     int nRet = -1;
+    AVGlobal *pGlobal = (AVGlobal *)arg;
+    AVFrame *pvFrame = av_frame_alloc();
+
+    if(pGlobal == NULL)
+    {
+        return nRet;
+    }
+
     for(;;)
     {
+        if(pGlobal->m_bQuit)
+        {
+            break;
+        }
 
+        if(pGlobal->m_queVideoPacket.GetPacketQueueElement(&pGlobal->m_videoPkt, false))
+        {
+            av_log(pGlobal->m_pCodecCtxVideo, AV_LOG_DEBUG, "Get a video packet, delay 10ms");
+            SDL_Delay(10);
+            continue;
+        }
+
+        //将视频包送到视频解码器
+        nRet = avcodec_send_packet(pGlobal->m_pCodecCtxVideo, &pGlobal->m_videoPkt);
+        av_packet_unref(&pGlobal->m_videoPkt);
+        if(nRet < 0)
+        {
+            av_log(pGlobal->m_pCodecCtxVideo, AV_LOG_ERROR, "Failed to send pkt to video decoder!\n");
+            goto __ERROR;
+        }
+
+        while(nRet >= 0)
+        {
+            nRet = avcodec_receive_frame(pGlobal->m_pCodecCtxVideo, pvFrame);
+            if(nRet == AVERROR(EAGAIN) || nRet == AVERROR_EOF)
+            {
+                break;
+            }
+            else if(nRet < 0)
+            {
+                av_log(pGlobal->m_pCodecCtxVideo, AV_LOG_ERROR, "Failed to receive frame from video decoder!\n");
+                nRet = -1;
+                goto __ERROR;
+            }
+        }
     }
+
+    __ERROR:
+    return nRet;
 }
 

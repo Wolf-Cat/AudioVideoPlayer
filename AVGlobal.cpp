@@ -62,7 +62,7 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
             break;
         case AVMEDIA_TYPE_VIDEO:
             m_pStreamVideo = pStream;
-            m_pCondecCtxVideo = pCodecContext;
+            m_pCodecCtxVideo = pCodecContext;
 
             //音视频同步的相关字段
             m_vframe_time = (double)av_gettime() / 1000000.0;  //换成的秒时间戳 1685954910   2023-06-05 16:48:30
