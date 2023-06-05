@@ -1,9 +1,70 @@
 #include "AVCallBackFunc.h"
 #include "AVGlobal.h"
-
+#include "Utils.h"
 /* stream 指向音频数据的buffer
  * len: 设备想要多少数据字节数
  * */
+
+int ReadAVDataThread(void *arg)
+{
+    av_log(NULL, AV_LOG_DEBUG, "Enter ReadAVDataThread\n");
+    int nRet = -1;
+    AVPacket *pktTmp = NULL;
+
+    AVGlobal *pAVglobal = (AVGlobal *)arg;
+    if(arg == NULL || pAVglobal == NULL) {
+        goto __ERROR;
+    }
+
+    //打开媒体文件，获取到媒体信息上下文AVFormatContext
+    nRet = avformat_open_input(&pAVglobal->m_pAVformatContext, pAVglobal->m_pFileName, NULL, NULL);
+    if(nRet < 0)
+    {
+        av_log(NULL, AV_LOG_ERROR, "Can not open file:%s, %d, %s\n", pAVglobal->m_pFileName, nRet, my_av_err2str(nRet));
+        goto __ERROR;
+    }
+
+    //找到音频流, 视频流, (或者字幕流)的流索引，AVStream **streams
+    for(int i = 0; i < pAVglobal->m_pAVformatContext->nb_streams; ++i)
+    {
+        AVStream *pSt = pAVglobal->m_pAVformatContext->streams[i];
+        enum AVMediaType eType = pSt->codecpar->codec_type;
+        if(eType == AVMEDIA_TYPE_AUDIO && pAVglobal->m_nAudioIndex == -1)
+        {
+            pAVglobal->m_nAudioIndex = i;
+        }
+        if(eType == AVMEDIA_TYPE_VIDEO && pAVglobal->m_nVideoIndex == -1)
+        {
+            pAVglobal->m_nVideoIndex = i;
+        }
+
+        //已经找到视频和音频的流索引
+        if(pAVglobal->m_nAudioIndex >= 0 && pAVglobal->m_nVideoIndex >= 0)
+        {
+            av_log(NULL, AV_LOG_DEBUG, "already find audioIndex:%d , videoIndex:%d", pAVglobal->m_nAudioIndex, pAVglobal->m_nVideoIndex);
+            break;
+        }
+    }
+
+    if(pAVglobal->m_nAudioIndex == -1 || pAVglobal->m_nVideoIndex == -1)
+    {
+        av_log(NULL, AV_LOG_ERROR, "find audioIndex:%d , videoIndex:%d error", pAVglobal->m_nAudioIndex, pAVglobal->m_nVideoIndex);
+        goto __ERROR;
+    }
+
+    if(pAVglobal->m_nAudioIndex >= 0)
+    {
+        pAVglobal->GetStreamComponent(pAVglobal->m_nAudioIndex);
+    }
+
+    if(pAVglobal->m_nVideoIndex >= 0)
+    {
+        pAVglobal->GetStreamComponent(pAVglobal->m_nVideoIndex);
+    }
+
+    __ERROR:
+    return nRet;
+}
 
 void CallBackSdlAudio(void *userdata, Uint8 *stream, int lenDeviceNeed)
 {
@@ -66,3 +127,4 @@ int VideoDecodeThread(void *arg)
 
     }
 }
+
