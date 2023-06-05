@@ -243,6 +243,9 @@ int VideoDecodeThread(void *arg)
             //3. 计算视频的clock时长到哪了
             ptsSecond = SynchronizeVideoPts(pGlobal, pvFrame, ptsSecond);
 
+            //将解码后的帧放入FrameQueue
+            pGlobal->m_videoFrameQueue.InsertFrame(pGlobal, pvFrame, ptsSecond, durationCurFrame, pvFrame->pkt_pos);
+
             av_frame_unref(pvFrame);
         }
     }

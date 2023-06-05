@@ -6,6 +6,8 @@ extern "C" {
     #include <SDL2/SDL_mutex.h>
 };
 
+#include "AVGlobal.h"
+
 #define VIDEO_PICTURE_QUEUE_SIZE 9
 
 /* 帧率的对象解释
@@ -29,14 +31,17 @@ typedef struct _VideoFrame {
 class VideoFrameQueue {
 public:
     int InitVideoFrameQueue(int nMaxFrameCount);
+    int InsertFrame(AVGlobal *pGlobal, AVFrame *pAvFrameSrc, double pts, double duration, int64_t pos);
+    VideoFrame* PeekWritableIndex();   //找到数组中可以放VideoFrame的坑位
+    void UpdateQueueCanWriteIndex();  // 更新可以插入队列的帧的位置
     void DestoryFrameQueue();
 
 private:
     VideoFrame m_queue[VIDEO_PICTURE_QUEUE_SIZE];
-    int nRindex = 0;
-    int nWindex = 0;
-    int nSize = 0;
-    int nAbort = 0;
+    int m_nRindex = 0;
+    int m_nWindex = 0;    //可以write的index的位置
+    int m_nCountEle = 0;
+    bool m_isbort = false;
     SDL_mutex *m_pMutex = NULL;
     SDL_cond *m_pCond = NULL;
 };
