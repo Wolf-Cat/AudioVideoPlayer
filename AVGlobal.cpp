@@ -133,14 +133,14 @@ int AVGlobal::DecodeAudioPacket()
         //拿到解码后音频帧需要判断音频帧的参数与扬声器的是否一致的，如果不一致需要进行重采样
         if(m_pAudioSwrCtx == NULL)
         {
-            AVChannelLayout ch_layout_in, cha_layout_out;
+            AVChannelLayout ch_layout_in, ch_layout_out;
             av_channel_layout_copy(&ch_layout_in, &m_pCodecCtxAudio->ch_layout);
-            av_channel_layout_copy(&cha_layout_out, &ch_layout_in);
+            av_channel_layout_copy(&ch_layout_out, &ch_layout_in);
 
             //重采样一般比较多的是针对采样格式的重采样
             if(m_pCodecCtxAudio->sample_fmt != AV_SAMPLE_FMT_S16)
             {
-                swr_alloc_set_opts2(&m_pAudioSwrCtx, &cha_layout_out,
+                swr_alloc_set_opts2(&m_pAudioSwrCtx, &ch_layout_out,
                                     AV_SAMPLE_FMT_S16, m_pCodecCtxAudio->sample_rate,
                                     &ch_layout_in,
                                     m_pCodecCtxAudio->sample_fmt, m_pCodecCtxAudio->sample_rate,
@@ -170,6 +170,20 @@ int AVGlobal::DecodeAudioPacket()
             nOutputPcmByteSize = nResamplesConvertPeerChannel * m_audioFrame.ch_layout.nb_channels *
                                  av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
         }
+
+        //计算整个音频当前的播放时钟，音视频同步时使用
+        if(!isnan(m_audioFrame.pts))
+        {
+            m_clock_audio = m_audioFrame.pts + (double)m_audioFrame.nb_samples / m_audioFrame.sample_rate;
+        }
+        else
+        {
+            m_clock_audio = NAN;
+        }
+
+        av_frame_unref(&m_audioFrame);
+
+        return nOutputPcmByteSize;
     }
 
     __END:

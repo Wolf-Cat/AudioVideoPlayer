@@ -36,6 +36,7 @@ public:
 
     //音视频同步相关
     int m_eTypeSync = 0;    //音视频同步的方式
+    double m_clock_audio = 0;
 
     //音频相关
     int m_nAudioIndex = -1;
