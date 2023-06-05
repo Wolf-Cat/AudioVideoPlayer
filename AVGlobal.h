@@ -19,11 +19,6 @@ enum {
     AV_SYNC_EXTERNAL_CLOCK_MASTER   //以外部为主时钟同步
 };
 
-#define SDL_AUDIO_BUFFER_SIZE 1024
-
-static void CallBackSdlAudio(void *userdata, Uint8 *stream, int lenDeviceNeed);
-static void VideoDecodeThread(void *arg);
-
 class AVGlobal {
 public:
     void SetAudioVideoSyncType(int eSyncTYpe);

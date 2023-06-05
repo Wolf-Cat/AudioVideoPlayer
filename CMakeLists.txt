@@ -14,6 +14,7 @@ add_executable(AudioVideoPlayer
         AVGlobal.cpp
         AVPacketQueue.cpp
         VideoFrameQueue.cpp
+        AVCallBackFunc.cpp
         main.cpp)
 
 #添加动态库
