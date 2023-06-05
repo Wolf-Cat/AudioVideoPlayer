@@ -68,6 +68,8 @@ int AVGlobal::GetStreamComponent(int nStreamIndex) {
             m_vframe_last_delay = 40e-3;  // 0.04
             m_video_current_pts_time = av_gettime();   //微秒时间戳：1685954910409425   2023-06-05 16:48:30
 
+            m_pVideoDecodeThread = SDL_CreateThread(VideoDecodeThread, "video_decode_thread", this);
+
             break;
         default:
             av_log(pCodecContext, AV_LOG_ERROR, "Unknow Codec Type: %d\n", pCodecContext->codec_type);
@@ -255,5 +257,14 @@ void CallBackSdlAudio(void *userdata, Uint8 *stream, int lenDeviceNeed)
         lenDeviceNeed -= lenCurBuffer;
         stream += lenCurBuffer;
         pGlobal->m_audio_buff_use_pos += lenCurBuffer;
+    }
+}
+
+void VideoDecodeThread(void *arg)
+{
+    int nRet = -1;
+    for(;;)
+    {
+        
     }
 }

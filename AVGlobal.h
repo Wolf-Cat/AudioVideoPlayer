@@ -22,6 +22,7 @@ enum {
 #define SDL_AUDIO_BUFFER_SIZE 1024
 
 static void CallBackSdlAudio(void *userdata, Uint8 *stream, int lenDeviceNeed);
+static void VideoDecodeThread(void *arg);
 
 class AVGlobal {
 public:
@@ -67,7 +68,7 @@ public:
 
     //线程相关
     SDL_Thread   *m_pReadThread = NULL;
-    SDL_Thread   *m_pDecodeThread = NULL;
+    SDL_Thread   *m_pVideoDecodeThread = NULL;
     bool m_bQuit = false;
 };
 
