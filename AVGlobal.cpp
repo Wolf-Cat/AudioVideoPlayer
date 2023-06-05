@@ -97,6 +97,8 @@ int AVGlobal::OpenAudioDevice(int nChannles, int nSampleRate)
 int AVGlobal::DecodeAudioPacket()
 {
     int nRet = 0;
+    int nResamplesConvertPeerChannel = 0;
+    int nOutputPcmByteSize = 0;
 
     for (;;) {
         if(m_queAudioPacket.GetPacketQueueElement(&m_audioPkt, false) <= 0)
@@ -146,6 +148,27 @@ int AVGlobal::DecodeAudioPacket()
 
                 swr_init(m_pAudioSwrCtx);
             }
+        }
+
+        if(m_pAudioSwrCtx)
+        {
+            const uint8_t  **buffAudioIn = (const uint8_t **)m_audioFrame.extended_data;
+            uint8_t **bufferOut = &m_pcmbuffer;
+            int nSampleCountOut = m_audioFrame.nb_samples + 256;    //采样点个数,加上了冗余部分
+
+            //计算该帧pcm所占的字节数
+            //dataSize = 2(通道数) * 2 (16bit,2B) * m_audioFrame.nb_samples(采样点个数);
+            int nOutSize = av_samples_get_buffer_size(NULL, m_audioFrame.ch_layout.nb_channels,
+                                                      nSampleCountOut, AV_SAMPLE_FMT_S16, 0);
+            av_fast_malloc(m_pcmbuffer, &m_audio_buff_size, nOutSize);
+
+            //返回重采样后的每个通道的采样点个数
+            nResamplesConvertPeerChannel = swr_convert(m_pAudioSwrCtx, bufferOut, nSampleCountOut,
+                        buffAudioIn, m_audioFrame.nb_samples);
+
+            //根据采样点计算出重采样后的pcm数据所占用的字节
+            nOutputPcmByteSize = nResamplesConvertPeerChannel * m_audioFrame.ch_layout.nb_channels *
+                                 av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
         }
     }
 
