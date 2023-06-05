@@ -5,6 +5,8 @@
  * len: 设备想要多少数据字节数
  * */
 
+#define FF_QUIT_EVENT (SDL_USEREVENT + 1)
+
 int ReadAVDataThread(void *arg)
 {
     av_log(NULL, AV_LOG_DEBUG, "Enter ReadAVDataThread\n");
@@ -99,7 +101,27 @@ int ReadAVDataThread(void *arg)
         }
     }
 
+    while (pAVglobal->m_bQuit)
+    {
+        SDL_Delay(100);
+    }
+
+    nRet = 0;
+
     __ERROR:
+    if(pktTmp != NULL)
+    {
+        av_packet_free(&pktTmp);
+    }
+
+    if(nRet != 0)
+    {
+        SDL_Event event;
+        event.type = FF_QUIT_EVENT;
+        event.user.data1 = pAVglobal;
+        SDL_PushEvent(&event);
+    }
+
     return nRet;
 }
 
