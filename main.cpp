@@ -82,7 +82,7 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
 
     //初始化解码前音频包队列
     if(pAVglobal->m_queAudioPacket.InitPacketQueue() < 0 ||
-            pAVglobal->m_queVedio.InitPacketQueue() < 0)
+            pAVglobal->m_queVideoPacket.InitPacketQueue() < 0)
     {
         return -2;
     }

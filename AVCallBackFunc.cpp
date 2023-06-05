@@ -62,6 +62,43 @@ int ReadAVDataThread(void *arg)
         pAVglobal->GetStreamComponent(pAVglobal->m_nVideoIndex);
     }
 
+    for (;;) {
+        if(pAVglobal->m_bQuit)
+        {
+            nRet = -1;
+            goto __ERROR;
+        }
+
+        //开始读取AVPacket
+        nRet = av_read_frame(pAVglobal->m_pAVformatContext, pktTmp);
+        if(nRet < 0)
+        {
+            if(pAVglobal->m_pAVformatContext->pb->error == 0)
+            {
+                SDL_Delay(100);
+                continue;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        //将AVPacket送到放入对应的音频/视频的 AVPacket队列中
+        if(pktTmp->stream_index == pAVglobal->m_nAudioIndex)
+        {
+            pAVglobal->m_queAudioPacket.PushPacketQueue(pktTmp);
+        }
+        else if(pktTmp->stream_index == pAVglobal->m_nVideoIndex)
+        {
+            pAVglobal->m_queVideoPacket.PushPacketQueue(pktTmp);
+        }
+        else  //暂且不处理字幕流或其他流的包
+        {
+            av_packet_unref(pktTmp);
+        }
+    }
+
     __ERROR:
     return nRet;
 }

@@ -55,7 +55,7 @@ public:
     //视频相关
     AVStream  *m_pStreamVideo = NULL;
     AVCodecContext *m_pCondecCtxVideo = NULL;
-    AVPacketQueue m_queVedio;
+    AVPacketQueue m_queVideoPacket;
     VideoFrameQueue m_videoFrameQueue;    //解码后的视频帧队列
     int m_nVideoIndex = -1;
 
