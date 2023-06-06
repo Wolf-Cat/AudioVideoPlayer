@@ -5,6 +5,7 @@
  * */
 
 #define FF_QUIT_EVENT (SDL_USEREVENT + 1)
+#define MAX_QUEUE_SIZE (5 * 1024 * 1024)
 
 int ReadAVDataThread(void *arg)
 {
@@ -68,6 +69,14 @@ int ReadAVDataThread(void *arg)
         {
             nRet = -1;
             goto __ERROR;
+        }
+
+        //如果当前队列中数据太多，防止内存占用过大，等待Packet队列中的数据被消耗一下
+        if(pAVglobal->m_queAudioPacket.GetQueueSize() > MAX_QUEUE_SIZE ||
+            pAVglobal->m_queVideoPacket.GetQueueSize() > MAX_QUEUE_SIZE)
+        {
+            SDL_Delay(10);
+            continue;
         }
 
         //开始读取AVPacket

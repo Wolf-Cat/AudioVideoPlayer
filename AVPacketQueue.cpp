@@ -104,6 +104,11 @@ int AVPacketQueue::GetPacketQueueElement(AVPacket *pKtOut, bool bBlock)
     return nRet;
 }
 
+int AVPacketQueue::GetQueueSize()
+{
+    return m_nQueueSize;
+}
+
 void AVPacketQueue::PacketQueueClear()
 {
     MyAVPacketList pktListTmp;

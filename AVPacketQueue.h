@@ -21,6 +21,7 @@ public:
     int InitPacketQueue();
     int PushPacketQueue(AVPacket *pKt);
     int GetPacketQueueElement(AVPacket *pKtOut, bool bBlock);
+    int GetQueueSize();
     void PacketQueueClear();
     void PacketQueueDestory();
 
