@@ -1,4 +1,5 @@
 #include "VideoFrameQueue.h"
+#include "AVGlobal.h"
 
 int VideoFrameQueue::InitVideoFrameQueue(int nMaxFrameCount)
 {

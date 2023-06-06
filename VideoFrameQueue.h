@@ -6,7 +6,7 @@ extern "C" {
     #include <SDL2/SDL_mutex.h>
 };
 
-#include "AVGlobal.h"
+class AVGlobal;
 
 #define VIDEO_PICTURE_QUEUE_SIZE 9
 
