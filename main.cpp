@@ -20,6 +20,7 @@ static SDL_Window *g_pWindow = NULL;
 static SDL_Renderer *g_pRenderer = NULL;
 
 int PlayerInit(const char* pFileName, AVGlobal *pAVGlobal);
+void SdlEventLoop(AVGlobal *pAVGlobal);
 
 int main(int argc, char *agrv[])
 {
@@ -63,6 +64,8 @@ int main(int argc, char *agrv[])
         av_log(NULL, AV_LOG_FATAL, "Init avplayer failed!\n");
     }
 
+    SdlEventLoop(pAVglobal);
+
 __END:
 
     return 0;
@@ -104,6 +107,22 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -4;
     }
 
-    SDL_Delay(5000);   //防止主线程马上退出，无法执行子线程
     return 0;
+}
+
+void SdlEventLoop(AVGlobal *pAVGlobal)
+{
+    SDL_Event event;
+    for(;;)
+    {
+        SDL_WaitEvent(&event);
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                pAVGlobal->m_bQuit = true;
+                break;
+            default:
+                break;
+        }
+    }
 }
