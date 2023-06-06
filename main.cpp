@@ -25,6 +25,7 @@ int PlayerInit(const char* pFileName, AVGlobal *pAVGlobal);
 void SdlEventLoop(AVGlobal *pAVGlobal);
 void ScheduleRefresh(AVGlobal *pGlobal, int timerLen);
 Uint32 SdlRefreshTimerCallBack(Uint32 interval, void *arg);
+void VideoFrameRefresh(void *arg);
 
 int main(int argc, char *agrv[])
 {
@@ -112,7 +113,7 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
     }
 
     ScheduleRefresh(pAVglobal, 40);
-    
+
     return 0;
 }
 
@@ -126,6 +127,9 @@ void SdlEventLoop(AVGlobal *pAVGlobal)
         {
             case SDL_QUIT:
                 pAVGlobal->m_bQuit = true;
+                break;
+            case FF_REFRESH_EVENT:
+                VideoFrameRefresh(pAVGlobal);
                 break;
             default:
                 break;
@@ -145,4 +149,24 @@ Uint32 SdlRefreshTimerCallBack(Uint32 interval, void *arg)
     event.user.data1 = arg;
     SDL_PushEvent(&event);
     return 0;
+}
+
+void VideoFramRefresh(void *arg)
+{
+    AVGlobal *pAVGlobal = (AVGlobal *)arg;
+    if(NULL == pAVGlobal)
+    {
+        return;
+    }
+
+    VideoFrame *pvFrame = NULL;
+
+    if(pAVGlobal->m_pStreamVideo)
+    {
+
+    }
+    else
+    {
+        ScheduleRefresh(pAVGlobal, 100);   //还未解析到视频流，再等待
+    }
 }
