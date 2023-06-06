@@ -16,11 +16,15 @@ namespace {
     const int WIN_HEIGHT = 480;
 }
 
+#define FF_REFRESH_EVENT  (SDL_USEREVENT)
+
 static SDL_Window *g_pWindow = NULL;
 static SDL_Renderer *g_pRenderer = NULL;
 
 int PlayerInit(const char* pFileName, AVGlobal *pAVGlobal);
 void SdlEventLoop(AVGlobal *pAVGlobal);
+void ScheduleRefresh(AVGlobal *pGlobal, int timerLen);
+Uint32 SdlRefreshTimerCallBack(Uint32 interval, void *arg);
 
 int main(int argc, char *agrv[])
 {
@@ -107,6 +111,8 @@ int PlayerInit(const char* pFileName, AVGlobal* pAVglobal)
         return -4;
     }
 
+    ScheduleRefresh(pAVglobal, 40);
+    
     return 0;
 }
 
@@ -125,4 +131,18 @@ void SdlEventLoop(AVGlobal *pAVGlobal)
                 break;
         }
     }
+}
+
+void ScheduleRefresh(AVGlobal *pGlobal, int timerLen)
+{
+    SDL_AddTimer(timerLen, SdlRefreshTimerCallBack, pGlobal);
+}
+
+Uint32 SdlRefreshTimerCallBack(Uint32 interval, void *arg)
+{
+    SDL_Event event;
+    event.type = FF_REFRESH_EVENT;
+    event.user.data1 = arg;
+    SDL_PushEvent(&event);
+    return 0;
 }
