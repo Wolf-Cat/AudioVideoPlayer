@@ -54,6 +54,21 @@ int VideoFrameQueue::InsertFrame(AVGlobal *pGlobal, AVFrame *pAvFrameSrc, double
     return 0;
 }
 
+void VideoFrameQueue::FrameQueuePop()
+{
+    VideoFrame *pv = &m_queue[m_nRindex];
+    av_frame_unref(pv->pVframe);
+    if(++m_nRindex == VIDEO_PICTURE_QUEUE_SIZE)
+    {
+        m_nRindex = 0;
+    }
+
+    SDL_LockMutex(m_pMutex);
+    m_nCountEle--;
+    SDL_CondSignal(m_pCond);
+    SDL_UnlockMutex(m_pMutex);
+}
+
 VideoFrame* VideoFrameQueue::PeekWritableIndex()
 {
     //需要等到一个坑位可以放置新的Frame
@@ -65,6 +80,11 @@ VideoFrame* VideoFrameQueue::PeekWritableIndex()
     SDL_UnlockMutex(m_pMutex);
 
     return &m_queue[m_nWindex];
+}
+
+VideoFrame* VideoFrameQueue::FrameQueuePeek()
+{
+    return &m_queue[m_nRindex];
 }
 
 void VideoFrameQueue::UpdateQueueCanWriteIndex()

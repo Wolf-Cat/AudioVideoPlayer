@@ -26,6 +26,7 @@ void SdlEventLoop(AVGlobal *pAVGlobal);
 void ScheduleRefresh(AVGlobal *pGlobal, int timerLen);
 Uint32 SdlRefreshTimerCallBack(Uint32 interval, void *arg);
 void VideoFrameRefresh(void *arg);
+void RenderPicture(AVGlobal *pGlobal);
 
 int main(int argc, char *agrv[])
 {
@@ -151,7 +152,7 @@ Uint32 SdlRefreshTimerCallBack(Uint32 interval, void *arg)
     return 0;
 }
 
-void VideoFramRefresh(void *arg)
+void VideoFrameRefresh(void *arg)
 {
     AVGlobal *pAVGlobal = (AVGlobal *)arg;
     if(NULL == pAVGlobal)
@@ -163,10 +164,43 @@ void VideoFramRefresh(void *arg)
 
     if(pAVGlobal->m_pStreamVideo)
     {
-
+        if(pAVGlobal->m_videoFrameQueue.m_nCountEle == 0)
+        {
+            ScheduleRefresh(pAVGlobal, 1);    //队列中没有解码后的帧时，需要尽快多次刷新。
+        }
+        else
+        {
+            pvFrame = pAVGlobal->m_videoFrameQueue.FrameQueuePeek();
+            pAVGlobal->m_video_current_pts_time = pvFrame->pts;
+        }
     }
     else
     {
         ScheduleRefresh(pAVGlobal, 100);   //还未解析到视频流，再等待
     }
+}
+
+void RenderPicture(AVGlobal *pGlobal)
+{
+    VideoFrame *pv = pGlobal->m_videoFrameQueue.FrameQueuePeek();
+
+    SDL_Rect rect;
+    rect.w = 200;
+    rect.h = 200;
+    rect.x = 500;
+    rect.y = 500;
+
+    if(pGlobal->m_pTextTure == NULL)
+    {
+        Uint32 pixformat = SDL_PIXELFORMAT_IYUV;   //以YUV格式渲染
+        pGlobal->m_pTextTure = SDL_CreateTexture(g_pRenderer, pixformat,
+                                                 pv->nWidth, pv->nHight,
+                                                 SDL_TEXTUREACCESS_STREAMING);
+
+        SDL_RenderClear(g_pRenderer);
+        SDL_RenderCopy(g_pRenderer, pGlobal->m_pTextTure, NULL, &rect);
+        SDL_RenderPresent(g_pRenderer);
+    }
+
+    pGlobal->m_videoFrameQueue.FrameQueuePop();
 }
